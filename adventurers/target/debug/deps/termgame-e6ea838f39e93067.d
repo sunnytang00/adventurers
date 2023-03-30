@@ -1,0 +1,13 @@
+/home/wasda/uni/comp6991/adventurers/adventurers/target/debug/deps/termgame-e6ea838f39e93067.rmeta: /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/lib.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/mod.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/chunkmap.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/screen_character.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/controller.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/game.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/game_error.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/message.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/styled_characters.rs
+
+/home/wasda/uni/comp6991/adventurers/adventurers/target/debug/deps/termgame-e6ea838f39e93067.d: /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/lib.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/mod.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/chunkmap.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/screen_character.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/controller.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/game.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/game_error.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/message.rs /home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/styled_characters.rs
+
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/lib.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/mod.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/chunkmap.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/charview/screen_character.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/controller.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/game.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/game_error.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/message.rs:
+/home/wasda/.cargo/registry/src/github.com-1ecc6299db9ec823/termgame-1.2.0/src/styled_characters.rs:
