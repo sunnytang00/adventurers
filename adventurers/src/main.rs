@@ -15,7 +15,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let args = std::env::args().collect::<Vec<_>>();
     //let garbage = &['{','}'];
     let data = fs::read_to_string(&args[1]).expect("Failed to read");
-    let parts = data.trim_matches(|ch| ch == '{' || ch == '}').split("\n").collect::<Vec<_>>();
+    let parts = data.trim_end()
+                            .trim_matches(|ch| ch == '{' || ch == '}')
+                            .trim().split("\n").collect::<Vec<_>>();
     for part in parts {
         eprint!("1");
         eprintln!("{}", part);
