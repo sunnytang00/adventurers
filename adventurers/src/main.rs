@@ -1,10 +1,9 @@
-use adventurers::{player::{Player, Movement}, utils::*};
-use std::{error::Error, env::args, fs::{File, self}, collections::HashMap};
+use adventurers::{player::{Player}, utils::*};
+use std::{error::Error, fs::{self}, collections::HashMap};
 use std::time::Duration;
 use termgame::{
-    run_game, Controller, Game, GameEvent, GameSettings, KeyCode, SimpleEvent, StyledCharacter,
+    run_game, GameSettings, KeyCode, SimpleEvent,
 };
-use serde::Deserialize;
 use adventurers::block::Block;
 // #[derive(Deserialize, Debug)]
 // struct Block {
@@ -26,7 +25,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     //Deseralise
     let game_map: HashMap<(i32, i32), Block> = ron::from_str(data.as_str()).expect("Map file is in wrong format.");
 
-    let player = Player {x: 3, y: 3, char: '♟'};
+    let player = Player {x: 3, y: 3, rel_x: 3, rel_y: 3, char: '♟'};
     let mut controller = my_game::MyGame {player, game_map};
     
     run_game(

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use termgame::{
-    run_game, Controller, Game, GameEvent, GameSettings, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation,
+    Controller, Game, GameEvent, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation,
 };
 // use adventurers::{player::Player, utils::*};
 use crate::{player::{Player, Movement}, block::{Block, BlockColour}};
@@ -29,14 +29,22 @@ impl Controller for MyGame {
         //Safe to assume player will always start on a block, so we can call unwrap without any fears
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
         let bg_colour = ch.style.unwrap().background_color;
-        
         game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(self.player.char).style(GameStyle::new().background_color(bg_colour))));
+        
+        //Work out relative position of player from middle of terminal, treating middle of terminal as origin
+        let (width, (height, _)) = game.screen_size();
+        let (term_width, term_height) = (width - 2, height - 2);
+        let term_middle = (term_width/2, term_height/2);
+        
+        self.player.rel_x = self.player.rel_x - i32::from(term_middle.0);
+        self.player.rel_y = i32::from(term_middle.1) - self.player.rel_y;
     }
 
     fn on_event(&mut self, game: &mut Game, event: GameEvent) {
         //Get background colour of current player spot before moving
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
-        let bg_colour = ch.style.unwrap().background_color;
+        //Need to change below
+        let bg_colour = ch.style.unwrap().background_color.unwrap();
 
         let (width, (height, _)) = game.screen_size();
         let (term_width, term_height) = (width - 2, height - 2);
@@ -47,8 +55,8 @@ impl Controller for MyGame {
                 
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
                     //Remove previous char of player, and set the background colour to the old colour
-                    game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(bg_colour))));
-                    self.player.moveLeft();
+                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    self.player.move_left();
                     block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
@@ -56,49 +64,52 @@ impl Controller for MyGame {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Right);
                 
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
-                    game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(bg_colour))));
-                    self.player.moveRight();
+                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    self.player.move_right();
                     block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Up) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Up);
-                // eprintln!("{}", self.player.y);
-                // eprintln!("{}", term_height);
-                // eprintln!("{}", i32::from(term_height) - self.player.y);
-                // eprintln!("--");
-                // if game.get_screen_char(self.player.x, self.player.y - 2).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    
-                //     if i32::from(term_height) - self.player.y >= 17 {
-                //         let new_viewport = ViewportLocation {x: game.get_viewport().x, y: game.get_viewport().y - 1};
-                //         game.set_viewport(new_viewport)
-                //     }
-                // }
-                
 
-                if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
-                    game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(bg_colour))));
-                    self.player.moveUp();
-                    block(game, self.player.x, self.player.y, self.player.char);
+                if game.get_screen_char(self.player.x, self.player.y - 1).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
+                    if i32::from(term_height/2) - self.player.rel_y <= 3 {
+                        move_viewport(game, Direction::Up);
+                        if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
+                            game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                            self.player.move_up();
+                            block(game, self.player.x, self.player.y, self.player.char);
+                        }
+                    } else {
+                        if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
+                            game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                            self.player.move_up();
+                            self.player.move_rel_up();
+                            block(game, self.player.x, self.player.y, self.player.char);
+                        }
+                    }
                 }
             },
             SimpleEvent::Just(KeyCode::Down) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Down);
-                //let colour = game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap();
 
-                if game.get_screen_char(self.player.x, self.player.y + 2).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    if i32::from(term_height) - self.player.y <= 3 {
-                        let new_viewport = ViewportLocation {x: game.get_viewport().x, y: game.get_viewport().y + 1};
-                        game.set_viewport(new_viewport)
+                if game.get_screen_char(self.player.x, self.player.y + 1).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
+                    if i32::from(term_height/2) + self.player.rel_y <= 3 {
+                        move_viewport(game, Direction::Down);
+                        if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
+                            game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                            self.player.move_down();
+                            block(game, self.player.x, self.player.y, self.player.char);
+                        }
+                    } else {
+                        if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
+                            game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                            self.player.move_down();
+                            self.player.move_rel_down();
+                            block(game, self.player.x, self.player.y, self.player.char);
+                        }
                     }
                 }
-                
-                if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
-                    game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(bg_colour))));
-                    self.player.moveDown();
-                    block(game, self.player.x, self.player.y, self.player.char);
-                }
-                
             },
             _ => {}
         }
@@ -115,14 +126,14 @@ fn block(game: &mut Game, x: i32, y: i32, player_char: char) {
     game.set_screen_char(x, y, Some(StyledCharacter::new(player_char).style(GameStyle::new().background_color(bg_colour_new))));
 }
 
-fn move_terminal(game: &mut Game, direction: Direction) {
-    
-    match direction {
-        Direction::Left => todo!(),
-        Direction::Right => todo!(),
-        Direction::Up => todo!(),
-        Direction::Down => todo!(),
-    }
+fn move_viewport(game: &mut Game, direction: Direction) {
+    let new_viewport = match direction {
+        Direction::Left => ViewportLocation {x: game.get_viewport().x - 1, y: game.get_viewport().y},
+        Direction::Right => ViewportLocation {x: game.get_viewport().x +1 , y: game.get_viewport().y},
+        Direction::Up => ViewportLocation {x: game.get_viewport().x, y: game.get_viewport().y - 1},
+        Direction::Down => ViewportLocation {x: game.get_viewport().x, y: game.get_viewport().y + 1},
+    };
+    game.set_viewport(new_viewport);
 }
 
 fn get_next_position(x: i32, y: i32, direction: Direction) -> (i32, i32) {
@@ -135,6 +146,6 @@ fn get_next_position(x: i32, y: i32, direction: Direction) -> (i32, i32) {
     position
 }
 
-fn create_block(colour: GameColor) -> Option<StyledCharacter> {
+fn create_empty_block(colour: GameColor) -> Option<StyledCharacter> {
     Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(colour))))
 }

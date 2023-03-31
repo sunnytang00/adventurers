@@ -1,8 +1,6 @@
-use std::io::Chain;
 
 use serde::Deserialize;
-use termgame::{GameColor, Game, GameStyle, StyledCharacter};
-use tui::style::Color;
+use termgame::{GameColor, GameStyle, StyledCharacter};
 #[derive(Deserialize)]
 pub enum Block {
     Barrier,
@@ -30,7 +28,7 @@ impl BlockColour for Block {
             Block::Rock => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Yellow)))),
             Block::Cinderblock => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::LightRed)))),
             Block::Flowerbush => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Magenta)))),
-            Block::Sign(String) => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Black)))),
+            Block::Sign(str) => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Black)))),
             Block::Object(char) => Some(StyledCharacter::new(char.to_owned()).style(GameStyle::new().background_color(Some(GameColor::Black)))),
         };
         ret
