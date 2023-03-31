@@ -4,7 +4,7 @@ use termgame::{
     run_game, Controller, Game, GameEvent, GameSettings, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation,
 };
 // use adventurers::{player::Player, utils::*};
-use crate::{player::{Player, Movement}, block::Block};
+use crate::{player::{Player, Movement}, block::{Block, BlockColour}};
 pub struct MyGame {
     pub player: Player,
     pub game_map: HashMap<(i32, i32), Block>,
@@ -20,41 +20,33 @@ enum Direction {
 impl Controller for MyGame {
     
     fn on_start(&mut self, game: &mut Game) {
+        //Initalise map
         for (key, value) in self.game_map.iter() {
-            let colour = match value {
-                Block::Barrier => Some(GameColor::White),
-                Block::Water => Some(GameColor::Blue),
-                Block::Grass => Some(GameColor::Green),
-                Block::Sand => Some(GameColor::Yellow),
-                Block::Rock => Some(GameColor::Gray),
-                Block::Cinderblock => Some(GameColor::LightRed),
-                Block::Flowerbush => Some(GameColor::Magenta),
-                _ => Some(GameColor::Black),
-            };
-            game.set_screen_char(key.0, key.1, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(colour))));
+            let ch = value.get_colour();
+            game.set_screen_char(key.0, key.1, ch);
         }
 
-        // //Safe to assume player will always start on a block
-        // let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
-        // let bg_colour = ch.style.unwrap().background_color;
+        //Safe to assume player will always start on a block, so we can call unwrap without any fears
+        let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
+        let bg_colour = ch.style.unwrap().background_color;
         
-        // game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(self.player.char).style(GameStyle::new().background_color(bg_colour))));
+        game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(self.player.char).style(GameStyle::new().background_color(bg_colour))));
     }
 
     fn on_event(&mut self, game: &mut Game, event: GameEvent) {
-        //Get background colour of current player spot
+        //Get background colour of current player spot before moving
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
         let bg_colour = ch.style.unwrap().background_color;
+
         let (width, (height, _)) = game.screen_size();
         let (term_width, term_height) = (width - 2, height - 2);
 
         match event.into() {
             SimpleEvent::Just(KeyCode::Left) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
-                //Remove previous char of player, and set the background colour to the old colour
                 
-
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
+                    //Remove previous char of player, and set the background colour to the old colour
                     game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(bg_colour))));
                     self.player.moveLeft();
                     block(game, self.player.x, self.player.y, self.player.char);
@@ -63,7 +55,6 @@ impl Controller for MyGame {
             SimpleEvent::Just(KeyCode::Right) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Right);
                 
-
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
                     game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(bg_colour))));
                     self.player.moveRight();
@@ -142,4 +133,8 @@ fn get_next_position(x: i32, y: i32, direction: Direction) -> (i32, i32) {
         Direction::Down => (x, y + 1),
     };
     position
+}
+
+fn create_block(colour: GameColor) -> Option<StyledCharacter> {
+    Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(colour))))
 }

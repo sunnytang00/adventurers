@@ -17,10 +17,13 @@ use adventurers::block::Block;
 //vec[0][1] y = 0, x = 1
 //use serde or ron crate to read ron files
 fn main() -> Result<(), Box<dyn Error>> {
-    //Reading in file
+    //Reading in args
     let args = std::env::args().collect::<Vec<_>>();
 
-    let mut data = fs::read_to_string(&args[1]).expect("Failed to read map file.");
+    //Map file
+    let data = fs::read_to_string(&args[1]).expect("Failed to read map file.");
+
+    //Deseralise
     let game_map: HashMap<(i32, i32), Block> = ron::from_str(data.as_str()).expect("Map file is in wrong format.");
 
     let player = Player {x: 3, y: 3, char: '♟'};
