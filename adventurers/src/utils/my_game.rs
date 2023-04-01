@@ -66,7 +66,7 @@ impl Controller for MyGame {
                         self.player.move_left();
                         self.player.move_rel_left();
                     }
-                    block(game, self.player.x, self.player.y, self.player.char);
+                    add_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Right) => {
@@ -85,7 +85,7 @@ impl Controller for MyGame {
                         self.player.move_right();
                         self.player.move_rel_right();
                     }
-                    block(game, self.player.x, self.player.y, self.player.char);
+                    add_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Up) => {
@@ -104,7 +104,7 @@ impl Controller for MyGame {
                         self.player.move_up();
                         self.player.move_rel_up();
                     }
-                    block(game, self.player.x, self.player.y, self.player.char);
+                    add_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Down) => {
@@ -124,7 +124,7 @@ impl Controller for MyGame {
                         self.player.move_rel_down();
                         
                     }
-                    block(game, self.player.x, self.player.y, self.player.char);
+                    add_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             _ => {}
@@ -136,7 +136,7 @@ impl Controller for MyGame {
 
 }
 
-fn block(game: &mut Game, x: i32, y: i32, player_char: char) {
+fn add_block(game: &mut Game, x: i32, y: i32, player_char: char) {
     let ch_new = game.get_screen_char(x, y).unwrap();
     let bg_colour_new = ch_new.style.unwrap().background_color;
     game.set_screen_char(x, y, Some(StyledCharacter::new(player_char).style(GameStyle::new().background_color(bg_colour_new))));
