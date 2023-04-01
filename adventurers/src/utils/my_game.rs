@@ -43,7 +43,7 @@ impl Controller for MyGame {
     fn on_event(&mut self, game: &mut Game, event: GameEvent) {
         //Get background colour of current player spot before moving
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
-        //Need to change below
+        //Need to change below no unwraps
         let bg_colour = ch.style.unwrap().background_color.unwrap();
 
         let (width, (height, _)) = game.screen_size();
@@ -72,29 +72,23 @@ impl Controller for MyGame {
             SimpleEvent::Just(KeyCode::Up) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Up);
 
-                if game.get_screen_char(self.player.x, self.player.y - 1).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    if i32::from(term_height/2) - self.player.rel_y <= 3 {
+                if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
+                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    if i32::from(term_height/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Up);
-                        if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
-                            game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
-                            self.player.move_up();
-                            block(game, self.player.x, self.player.y, self.player.char);
-                        }
+                        self.player.move_up();
                     } else {
-                        if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
-                            game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
-                            self.player.move_up();
-                            self.player.move_rel_up();
-                            block(game, self.player.x, self.player.y, self.player.char);
-                        }
+                        self.player.move_up();
+                        self.player.move_rel_up();
                     }
+                    block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Down) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Down);
 
-                if game.get_screen_char(self.player.x, self.player.y + 1).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    if i32::from(term_height/2) + self.player.rel_y <= 3 {
+                if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
+                    if i32::from(term_height/2) + self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Down);
                         if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White  {
                             game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
