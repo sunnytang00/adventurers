@@ -63,12 +63,13 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_width/2) + self.player.rel_x <= 2 {
                         move_viewport(game, Direction::Left);
-                        self.player.move_dir(Direction::Left);
+                        
                     } else {
-                        self.player.move_dir(Direction::Left);
+                        
                         self.player.move_dir_rel(Direction::Left);
                     }
-                    add_block(game, self.player.x, self.player.y, self.player.char);
+                    self.player.move_dir(Direction::Left);
+                    add_player_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Right) => {
@@ -77,17 +78,16 @@ impl Controller for MyGame {
                 if game.get_screen_char(x, y).is_none() {
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
                 }
-                
+            
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_width/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Right);
-                        self.player.move_dir(Direction::Right);
                     } else {
-                        self.player.move_dir(Direction::Right);
                         self.player.move_dir_rel(Direction::Right);
                     }
-                    add_block(game, self.player.x, self.player.y, self.player.char);
+                    self.player.move_dir(Direction::Right);
+                    add_player_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Up) => {
@@ -101,12 +101,11 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_height/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Up);
-                        self.player.move_dir(Direction::Up);
                     } else {
-                        self.player.move_dir(Direction::Up);
                         self.player.move_dir_rel(Direction::Up);
                     }
-                    add_block(game, self.player.x, self.player.y, self.player.char);
+                    self.player.move_dir(Direction::Up);
+                    add_player_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             SimpleEvent::Just(KeyCode::Down) => {
@@ -120,13 +119,11 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_height/2) + self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Down);
-                        self.player.move_dir(Direction::Down);
                     } else { 
-                        self.player.move_dir(Direction::Down);
                         self.player.move_dir_rel(Direction::Down);
-                        
                     }
-                    add_block(game, self.player.x, self.player.y, self.player.char);
+                    self.player.move_dir(Direction::Down);
+                    add_player_block(game, self.player.x, self.player.y, self.player.char);
                 }
             },
             _ => {}
@@ -146,7 +143,7 @@ impl Controller for MyGame {
 
 }
 
-fn add_block(game: &mut Game, x: i32, y: i32, player_char: char) {
+fn add_player_block(game: &mut Game, x: i32, y: i32, player_char: char) {
     let ch_new = game.get_screen_char(x, y).unwrap();
     let bg_colour_new = ch_new.style.unwrap().background_color;
     game.set_screen_char(x, y, Some(StyledCharacter::new(player_char).style(GameStyle::new().background_color(bg_colour_new))));
