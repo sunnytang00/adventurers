@@ -1,10 +1,10 @@
 use std::collections::HashMap;
 
 use termgame::{
-    Controller, Game, GameEvent, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation,
+    Controller, Game, GameEvent, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation, Message
 };
 // use adventurers::{player::Player, utils::*};
-use crate::{player::{Player, Movement}, block::{Block, BlockColour}};
+use crate::{player::{Player, Movement, Breath}, block::{Block, BlockColour}};
 pub struct MyGame {
     pub player: Player,
     pub game_map: HashMap<(i32, i32), Block>,
@@ -41,6 +41,13 @@ impl Controller for MyGame {
     }
 
     fn on_event(&mut self, game: &mut Game, event: GameEvent) {
+        if self.player.get_breath() == 0 {
+            Message::new(String::from("MyMessage"))
+            .title(String::from("Title"));
+            game.end_game();
+            println!("You Died!")
+        }
+
         //Get background colour of current player spot before moving
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
         //Need to change below no unwraps
@@ -48,7 +55,7 @@ impl Controller for MyGame {
 
         let (width, (height, _)) = game.screen_size();
         let (term_width, term_height) = (width - 2, height - 2);
-
+        
         match event.into() {
             SimpleEvent::Just(KeyCode::Left) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
@@ -129,10 +136,18 @@ impl Controller for MyGame {
             },
             _ => {}
         }
-        
+
+        if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
+            self.player.decrease_breath();
+        } else {
+            self.player.reset_breath();
+        }
+
     }
 
-    fn on_tick(&mut self, _game: &mut Game) {}
+    fn on_tick(&mut self, _game: &mut Game) {
+
+    }
 
 }
 
