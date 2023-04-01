@@ -3,18 +3,13 @@ use std::collections::HashMap;
 use termgame::{
     Controller, Game, GameEvent, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation, Message
 };
-// use adventurers::{player::Player, utils::*};
-use crate::{player::{Player, Movement, Breath}, block::{Block, BlockColour}};
+
+use super::direction::Direction;
+use super::player::{Player, Breath, Movement};
+use super::block::{Block, BlockColour};
 pub struct MyGame {
     pub player: Player,
     pub game_map: HashMap<(i32, i32), Block>,
-}
-
-enum Direction {
-    Left,
-    Right,
-    Up,
-    Down,
 }
 
 impl Controller for MyGame {

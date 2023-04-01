@@ -10,6 +10,8 @@ pub struct Player {
 
 pub trait Movement {
 
+    //fn move(&mut self,)
+
     fn move_up(&mut self);
 
     fn move_down(&mut self);

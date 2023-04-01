@@ -1,10 +1,10 @@
-use adventurers::{player::{Player}, utils::*};
 use std::{error::Error, fs::{self}, collections::HashMap};
 use std::time::Duration;
+use adventurers::utils::{block::Block, my_game, player::Player};
 use termgame::{
     run_game, GameSettings, KeyCode, SimpleEvent,
 };
-use adventurers::block::Block;
+
 fn main() -> Result<(), Box<dyn Error>> {
     //Reading in args
     let args = std::env::args().collect::<Vec<_>>();
