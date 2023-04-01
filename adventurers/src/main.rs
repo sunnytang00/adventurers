@@ -5,16 +5,6 @@ use termgame::{
     run_game, GameSettings, KeyCode, SimpleEvent,
 };
 use adventurers::block::Block;
-// #[derive(Deserialize, Debug)]
-// struct Block {
-//     position: (i32, i32),
-//     block_type: String,
-// }
-//store coordinates as 2d array index, value is string of the block
-//setting block character is a space, background colour is whatever of the block
-//when moving character, set player character to the new block, and background colour keep as the same
-//vec[0][1] y = 0, x = 1
-//use serde or ron crate to read ron files
 fn main() -> Result<(), Box<dyn Error>> {
     //Reading in args
     let args = std::env::args().collect::<Vec<_>>();
