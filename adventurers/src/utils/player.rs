@@ -1,3 +1,5 @@
+use super::direction::Direction;
+
 pub struct Player {
     pub x: i32,
     pub y: i32,
@@ -10,23 +12,10 @@ pub struct Player {
 
 pub trait Movement {
 
-    //fn move(&mut self,)
+    fn move_dir(&mut self, direction: Direction);
 
-    fn move_up(&mut self);
+    fn move_dir_rel(&mut self, direction: Direction);
 
-    fn move_down(&mut self);
-
-    fn move_left(&mut self);
-
-    fn move_right(&mut self);
-
-    fn move_rel_up(&mut self);
-
-    fn move_rel_down(&mut self);
-
-    fn move_rel_left(&mut self);
-
-    fn move_rel_right(&mut self);
 }
 
 pub trait Breath {
@@ -40,38 +29,24 @@ pub trait Breath {
 
 impl Movement for Player {
 
-    fn move_up(&mut self) {
-        self.y = self.y - 1;
+    fn move_dir(&mut self, direction: Direction) {
+        match direction {
+            Direction::Left => self.x = self.x - 1,
+            Direction::Right => self.x = self.x + 1,
+            Direction::Up => self.y = self.y - 1,
+            Direction::Down => self.y = self.y + 1,
+        };
     }
 
-    fn move_down(&mut self) {
-        self.y = self.y + 1;
+    fn move_dir_rel(&mut self, direction: Direction) {
+        match direction {
+            Direction::Left => self.rel_x = self.rel_x - 1,
+            Direction::Right => self.rel_x = self.rel_x + 1,
+            Direction::Up => self.rel_y = self.rel_y + 1,
+            Direction::Down => self.rel_y = self.rel_y - 1,
+        };
     }
-
-    fn move_left(&mut self) {
-        self.x = self.x - 1;
-    }
-
-    fn move_right(&mut self) {
-        self.x = self.x + 1;
-    }
-
-    fn move_rel_up(&mut self) {
-        self.rel_y = self.rel_y + 1;
-    }
-
-    fn move_rel_down(&mut self) {
-        self.rel_y = self.rel_y - 1;
-    }
-
-    fn move_rel_left(&mut self) {
-        self.rel_x = self.rel_x - 1;
-    }
-
-    fn move_rel_right(&mut self) {
-        self.rel_x = self.rel_x + 1;
-    }
-
+    
 }
 
 impl Breath for Player {

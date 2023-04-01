@@ -63,10 +63,10 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_width/2) + self.player.rel_x <= 2 {
                         move_viewport(game, Direction::Left);
-                        self.player.move_left();
+                        self.player.move_dir(Direction::Left);
                     } else {
-                        self.player.move_left();
-                        self.player.move_rel_left();
+                        self.player.move_dir(Direction::Left);
+                        self.player.move_dir_rel(Direction::Left);
                     }
                     add_block(game, self.player.x, self.player.y, self.player.char);
                 }
@@ -82,10 +82,10 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_width/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Right);
-                        self.player.move_right();
+                        self.player.move_dir(Direction::Right);
                     } else {
-                        self.player.move_right();
-                        self.player.move_rel_right();
+                        self.player.move_dir(Direction::Right);
+                        self.player.move_dir_rel(Direction::Right);
                     }
                     add_block(game, self.player.x, self.player.y, self.player.char);
                 }
@@ -101,10 +101,10 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_height/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Up);
-                        self.player.move_up();
+                        self.player.move_dir(Direction::Up);
                     } else {
-                        self.player.move_up();
-                        self.player.move_rel_up();
+                        self.player.move_dir(Direction::Up);
+                        self.player.move_dir_rel(Direction::Up);
                     }
                     add_block(game, self.player.x, self.player.y, self.player.char);
                 }
@@ -120,10 +120,10 @@ impl Controller for MyGame {
                     game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
                     if i32::from(term_height/2) + self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Down);
-                        self.player.move_down();
+                        self.player.move_dir(Direction::Down);
                     } else { 
-                        self.player.move_down();
-                        self.player.move_rel_down();
+                        self.player.move_dir(Direction::Down);
+                        self.player.move_dir_rel(Direction::Down);
                         
                     }
                     add_block(game, self.player.x, self.player.y, self.player.char);
