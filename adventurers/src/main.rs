@@ -16,7 +16,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let game_map: HashMap<(i32, i32), Block> = ron::from_str(data.as_str()).expect("Map file is in wrong format.");
 
     let player = Player {x: 3, y: 3, rel_x: 3, rel_y: 3, breath: 10, char: '♟'};
-    let mut controller = my_game::MyGame {player, game_map};
+    let mut controller = my_game::MyGame {player, game_map, game_state: 0 , saved_block: None};
     
     run_game(
         &mut controller,GameSettings::new()

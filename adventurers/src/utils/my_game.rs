@@ -4,12 +4,16 @@ use termgame::{
     Controller, Game, GameEvent, KeyCode, SimpleEvent, StyledCharacter, GameStyle, GameColor, ViewportLocation, Message
 };
 
-use super::direction::Direction;
-use super::player::{Player, Breath, Movement};
-use super::block::{Block, BlockColour};
+use crate::utils::block::{Block, BlockColour, SignText};
+use crate::utils::direction::Direction;
+use crate::utils::player::{Player, Breath, Movement};
+use crate::utils::saved_block::saved_block;
+
 pub struct MyGame {
     pub player: Player,
     pub game_map: HashMap<(i32, i32), Block>,
+    pub game_state: i32,
+    pub saved_block: Option<saved_block>,
 }
 
 impl Controller for MyGame {
@@ -36,13 +40,9 @@ impl Controller for MyGame {
     }
 
     fn on_event(&mut self, game: &mut Game, event: GameEvent) {
-        if self.player.get_breath() == 0 {
-            Message::new(String::from("MyMessage"))
-            .title(String::from("Title"));
+        if self.game_state == 1 {
             game.end_game();
-            println!("You Died!")
         }
-
         //Get background colour of current player spot before moving
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
         //Need to change below no unwraps
@@ -56,31 +56,63 @@ impl Controller for MyGame {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
                 
                 if game.get_screen_char(x, y).is_none() {
+                    self.game_map.insert((x, y), Block::Empty);
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
                 }
-                
+
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    //Delete old character - replace the sign if we moved onto it
+                    if self.saved_block.is_some() {
+                        game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))));
+                        self.saved_block = None;
+                    } else {
+                        game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    }
+                    
+                    //If player is going to move onto a sign block, save info about sign block
+                    if game.get_screen_char(x, y).unwrap().c == '💬' {
+                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                    }
+
                     if i32::from(term_width/2) + self.player.rel_x <= 2 {
                         move_viewport(game, Direction::Left);
-                        
                     } else {
-                        
                         self.player.move_dir_rel(Direction::Left);
                     }
                     self.player.move_dir(Direction::Left);
                     add_player_block(game, self.player.x, self.player.y, self.player.char);
+
+                    
+
+                    if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
+                        self.player.decrease_breath();
+                    } else {
+                        self.player.reset_breath();
+                    }
                 }
+                
             },
             SimpleEvent::Just(KeyCode::Right) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Right);
 
                 if game.get_screen_char(x, y).is_none() {
+                    self.game_map.insert((x, y), Block::Empty);
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
                 }
             
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+
+                    if self.saved_block.is_some() {
+                        game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))));
+                        self.saved_block = None;
+                    } else {
+                        game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    }
+
+                    if game.get_screen_char(x, y).unwrap().c == '💬' {
+                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                    }
+
                     if i32::from(term_width/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Right);
                     } else {
@@ -88,17 +120,36 @@ impl Controller for MyGame {
                     }
                     self.player.move_dir(Direction::Right);
                     add_player_block(game, self.player.x, self.player.y, self.player.char);
+
+                    if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
+                        self.player.decrease_breath();
+                    } else {
+                        self.player.reset_breath();
+                    }
                 }
             },
             SimpleEvent::Just(KeyCode::Up) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Up);
 
                 if game.get_screen_char(x, y).is_none() {
+                    self.game_map.insert((x, y), Block::Empty);
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
                 }
 
                 if game.get_screen_char(x, y).expect("Empty1").style.expect("Empty2").background_color.expect("Empty") != GameColor::White {
-                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    
+                    if self.saved_block.is_some() {
+                        game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))));
+                        self.saved_block = None;
+                    } else {
+                        eprintln!("here");
+                        game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    }
+
+                    if game.get_screen_char(x, y).unwrap().c == '💬' {
+                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                    }
+                    
                     if i32::from(term_height/2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Up);
                     } else {
@@ -106,17 +157,35 @@ impl Controller for MyGame {
                     }
                     self.player.move_dir(Direction::Up);
                     add_player_block(game, self.player.x, self.player.y, self.player.char);
+
+                    if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
+                        self.player.decrease_breath();
+                    } else {
+                        self.player.reset_breath();
+                    }
                 }
             },
             SimpleEvent::Just(KeyCode::Down) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Down);
 
                 if game.get_screen_char(x, y).is_none() {
+                    self.game_map.insert((x, y), Block::Empty);
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
                 }
 
                 if game.get_screen_char(x, y).unwrap().style.unwrap().background_color.unwrap() != GameColor::White {
-                    game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    
+                    if self.saved_block.is_some() {
+                        game.set_screen_char(self.player.x, self.player.y, Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))));
+                        self.saved_block = None;
+                    } else {
+                        game.set_screen_char(self.player.x, self.player.y, create_empty_block(bg_colour));
+                    }
+
+                    if game.get_screen_char(x, y).unwrap().c == '💬' {
+                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                    }
+
                     if i32::from(term_height/2) + self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Down);
                     } else { 
@@ -124,15 +193,30 @@ impl Controller for MyGame {
                     }
                     self.player.move_dir(Direction::Down);
                     add_player_block(game, self.player.x, self.player.y, self.player.char);
+
+                    if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
+                        self.player.decrease_breath();
+                    } else {
+                        self.player.reset_breath();
+                    }
                 }
             },
             _ => {}
         }
 
-        if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
-            self.player.decrease_breath();
+        //Sign_msg contains the string in the sign block, if block is not a sign, sign_msg is empty string
+        let sign_msg = self.game_map.get(&(self.player.x, self.player.y)).unwrap().get_sign_text();
+
+
+        if sign_msg != "" {
+            game.set_message(Some(Message::new(String::from(sign_msg)).title("Adventurers".to_owned())));
         } else {
-            self.player.reset_breath();
+            game.set_message(None);
+        }
+
+        if self.player.get_breath() == 0 {
+            game.set_message(Some(Message::new(String::from("YOU DIED")).title("Adventurers".to_owned())));
+            self.game_state = 1;
         }
 
     }
