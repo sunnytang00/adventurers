@@ -7,13 +7,13 @@ use termgame::{
 use crate::utils::block::{Block, BlockColour, SignText};
 use crate::utils::direction::Direction;
 use crate::utils::player::{Player, Breath, Movement};
-use crate::utils::saved_block::saved_block;
+use crate::utils::saved_block::SavedBlock;
 
 pub struct MyGame {
     pub player: Player,
     pub game_map: HashMap<(i32, i32), Block>,
     pub game_state: i32,
-    pub saved_block: Option<saved_block>,
+    pub saved_block: Option<SavedBlock>,
 }
 
 impl Controller for MyGame {
@@ -71,7 +71,7 @@ impl Controller for MyGame {
                     
                     //If player is going to move onto a sign block, save info about sign block
                     if game.get_screen_char(x, y).unwrap().c == '💬' {
-                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                        self.saved_block = Some(SavedBlock {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
                     }
 
                     if i32::from(term_width/2) + self.player.rel_x <= 2 {
@@ -110,7 +110,7 @@ impl Controller for MyGame {
                     }
 
                     if game.get_screen_char(x, y).unwrap().c == '💬' {
-                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                        self.saved_block = Some(SavedBlock {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
                     }
 
                     if i32::from(term_width/2) - self.player.rel_y <= 2 {
@@ -147,7 +147,7 @@ impl Controller for MyGame {
                     }
 
                     if game.get_screen_char(x, y).unwrap().c == '💬' {
-                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                        self.saved_block = Some(SavedBlock {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
                     }
                     
                     if i32::from(term_height/2) - self.player.rel_y <= 2 {
@@ -183,7 +183,7 @@ impl Controller for MyGame {
                     }
 
                     if game.get_screen_char(x, y).unwrap().c == '💬' {
-                        self.saved_block = Some(saved_block {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
+                        self.saved_block = Some(SavedBlock {x, y, block: Block::Sign(self.game_map.get(&(x, y)).unwrap().get_sign_text())});
                     }
 
                     if i32::from(term_height/2) + self.player.rel_y <= 2 {

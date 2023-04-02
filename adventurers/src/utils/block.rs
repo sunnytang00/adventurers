@@ -43,7 +43,7 @@ impl BlockColour for Block {
             Block::Rock => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Yellow)))),
             Block::Cinderblock => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::LightRed)))),
             Block::Flowerbush => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Magenta)))),
-            Block::Sign(str) => Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))),
+            Block::Sign(_) => Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))),
             Block::Object(char) => Some(StyledCharacter::new(char.to_owned()).style(GameStyle::new().background_color(Some(GameColor::Black)))),
             Block::Empty => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Black)))),
         };
