@@ -82,8 +82,6 @@ impl Controller for MyGame {
                     self.player.move_dir(Direction::Left);
                     add_player_block(game, self.player.x, self.player.y, self.player.char);
 
-                    
-
                     if game.get_screen_char(self.player.x, self.player.y).unwrap().style.unwrap().background_color.unwrap() ==  GameColor::Blue {
                         self.player.decrease_breath();
                     } else {
