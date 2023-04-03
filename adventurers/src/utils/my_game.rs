@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use adventurers_quest::quest::{Quest, Questing};
 use termgame::{
     Controller, Game, GameColor, GameEvent, GameStyle, KeyCode, Message, SimpleEvent,
     StyledCharacter, ViewportLocation,
@@ -7,14 +8,14 @@ use termgame::{
 
 use lib::block::{Block, BlockColour, SignText};
 use lib::direction::Direction;
-use lib::player::{Player, Breath, Movement};
-
+use lib::player::{Breath, Movement, Player};
 
 pub struct MyGame {
     pub player: Player,
     pub game_map: HashMap<(i32, i32), Block>,
     pub game_state: i32,
     pub sign_msg: Option<String>,
+    pub quest: Quest,
 }
 
 impl Controller for MyGame {
@@ -59,6 +60,13 @@ impl Controller for MyGame {
         let (term_width, term_height) = (width - 2, height - 2);
 
         match event.into() {
+            SimpleEvent::Just(KeyCode::Char('q')) => {
+                eprintln!("ds");
+                // Message::new(String::from("YOU DIED")).title("Adventurers".to_string());
+                game.set_message(Some(
+                    Message::new(self.quest.to_string()).title("Adventurers".to_string()),
+                ));
+            }
             SimpleEvent::Just(KeyCode::Left) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
 
@@ -69,6 +77,7 @@ impl Controller for MyGame {
                 }
 
                 if get_block(&self.game_map, (x, y)) != &Block::Barrier {
+                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
                     //Delete old character - replace the sign if we moved onto it
                     if self.sign_msg.is_some() {
                         game.set_screen_char(
@@ -122,7 +131,14 @@ impl Controller for MyGame {
                     } else {
                         self.player.reset_breath();
                     }
+                    
                 }
+                match &self.sign_msg {
+                    Some(message) => game.set_message(Some(
+                        Message::new(message.to_string()).title("Adventurers".to_string()),
+                    )),
+                    None => game.set_message(None),
+                };
             }
             SimpleEvent::Just(KeyCode::Right) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Right);
@@ -133,6 +149,7 @@ impl Controller for MyGame {
                 }
 
                 if get_block(&self.game_map, (x, y)) != &Block::Barrier {
+                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
                     if self.sign_msg.is_some() {
                         game.set_screen_char(
                             self.player.x,
@@ -183,6 +200,12 @@ impl Controller for MyGame {
                         self.player.reset_breath();
                     }
                 }
+                match &self.sign_msg {
+                    Some(message) => game.set_message(Some(
+                        Message::new(message.to_string()).title("Adventurers".to_string()),
+                    )),
+                    None => game.set_message(None),
+                };
             }
             SimpleEvent::Just(KeyCode::Up) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Up);
@@ -193,6 +216,7 @@ impl Controller for MyGame {
                 }
 
                 if get_block(&self.game_map, (x, y)) != &Block::Barrier {
+                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
                     if self.sign_msg.is_some() {
                         game.set_screen_char(
                             self.player.x,
@@ -243,6 +267,12 @@ impl Controller for MyGame {
                         self.player.reset_breath();
                     }
                 }
+                match &self.sign_msg {
+                    Some(message) => game.set_message(Some(
+                        Message::new(message.to_string()).title("Adventurers".to_string()),
+                    )),
+                    None => game.set_message(None),
+                };
             }
             SimpleEvent::Just(KeyCode::Down) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Down);
@@ -253,6 +283,7 @@ impl Controller for MyGame {
                 }
 
                 if get_block(&self.game_map, (x, y)) != &Block::Barrier {
+                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
                     if self.sign_msg.is_some() {
                         game.set_screen_char(
                             self.player.x,
@@ -304,17 +335,19 @@ impl Controller for MyGame {
                         self.player.reset_breath();
                     }
                 }
+
+                match &self.sign_msg {
+                    Some(message) => game.set_message(Some(
+                        Message::new(message.to_string()).title("Adventurers".to_string()),
+                    )),
+                    None => game.set_message(None),
+                };
             }
             _ => {}
         }
 
         //Sign_msg contains the string in the sign block, if block is not a sign, sign_msg is empty string
-        match &self.sign_msg {
-            Some(message) => game.set_message(Some(
-                Message::new(message.to_string()).title("Adventurers".to_string()),
-            )),
-            None => game.set_message(None),
-        };
+        
 
         if self.player.get_breath() == 0 {
             game.set_message(Some(

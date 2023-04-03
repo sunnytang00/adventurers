@@ -1,4 +1,8 @@
 use adventurers::utils::my_game;
+use adventurers_quest::quest::Quest;
+use adventurers_quest::quest_action::QuestAction;
+use adventurers_quest::quest_task::QuestTask;
+use adventurers_quest::utils::QuestStatus;
 use lib::{block::Block, player::Player};
 use std::time::Duration;
 use std::{
@@ -7,7 +11,6 @@ use std::{
     fs::{self},
 };
 use termgame::{run_game, GameSettings, KeyCode, SimpleEvent};
-use adventurers_quest::utils::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     //Reading in args
@@ -17,6 +20,31 @@ fn main() -> Result<(), Box<dyn Error>> {
     let data = fs::read_to_string(&args[1]).expect("Failed to read map file.");
 
     let quest_id = &args[2];
+
+    let quest = match quest_id.as_str() {
+        "q1" => {
+            let mut tasks: Vec<QuestTask> = Vec::new();
+
+            tasks.push(QuestTask {
+                status: QuestStatus::Ongoing,
+                task: QuestAction::Walk,
+                object: Block::Sand,
+                no_of_times: 5,
+                x_more_times: 5,
+            });
+
+            Quest {
+                status: QuestStatus::Ongoing,
+                tasks: tasks,
+            }
+        }
+        "q2" => todo!(),
+        "q3" => todo!(),
+        _ => Quest {
+            status: QuestStatus::Complete,
+            tasks: Vec::new(),
+        },
+    };
 
     //Deseralise
     let game_map: HashMap<(i32, i32), Block> =
@@ -35,6 +63,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         game_map,
         game_state: 0,
         sign_msg: None,
+        quest: quest,
     };
 
     run_game(

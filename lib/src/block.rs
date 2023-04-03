@@ -1,3 +1,5 @@
+use std::fmt::{self, Formatter};
+
 use serde::Deserialize;
 use termgame::{GameColor, GameStyle, StyledCharacter};
 #[derive(PartialEq, Deserialize)]
@@ -75,6 +77,27 @@ impl BlockColour for Block {
                 StyledCharacter::new(' ')
                     .style(GameStyle::new().background_color(Some(GameColor::Black))),
             ),
+        };
+        ret
+    }
+}
+pub trait Display {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result;
+}
+
+impl fmt::Display for Block {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let ret = match self {
+            Block::Barrier => write!(f, "Barrier"),
+            Block::Water => write!(f, "block of water"),
+            Block::Grass => write!(f, "block of grass"),
+            Block::Sand => write!(f, "block of sand"),
+            Block::Rock => write!(f, "block of rock"),
+            Block::Cinderblock => write!(f, "block of cinderblock"),
+            Block::Flowerbush => write!(f, "block of flowerbush"),
+            Block::Empty => write!(f, "??"),
+            Block::Sign(_) => write!(f, "sign"),
+            Block::Object(_) => write!(f, "object"),
         };
         ret
     }
