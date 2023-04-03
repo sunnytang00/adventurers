@@ -27,14 +27,13 @@ impl Controller for MyGame {
         }
 
         //Safe to assume player will always start on a block, so we can call unwrap without any fears
-        let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
-        let bg_colour = ch.style.unwrap().background_color;
+        let bg_colour = get_background_color(game, self.player.x, self.player.y);
         game.set_screen_char(
             self.player.x,
             self.player.y,
             Some(
                 StyledCharacter::new(self.player.char)
-                    .style(GameStyle::new().background_color(bg_colour)),
+                    .style(GameStyle::new().background_color(Some(bg_colour))),
             ),
         );
 
@@ -52,6 +51,7 @@ impl Controller for MyGame {
             game.end_game();
         }
         //Get background colour of current player spot before moving
+        
         let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
         //Need to change below no unwraps
         let bg_colour = ch.style.unwrap().background_color.unwrap();
@@ -61,12 +61,16 @@ impl Controller for MyGame {
 
         match event.into() {
             SimpleEvent::Just(KeyCode::Char('q')) => {
-                eprintln!("ds");
-                // Message::new(String::from("YOU DIED")).title("Adventurers".to_string());
                 game.set_message(Some(
                     Message::new(self.quest.to_string()).title("Adventurers".to_string()),
                 ));
             }
+
+            SimpleEvent::Just(KeyCode::Char('r')) => {
+                self.quest.reset_quest();
+                game.set_message(None);
+            }
+
             SimpleEvent::Just(KeyCode::Left) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
 
@@ -347,11 +351,9 @@ impl Controller for MyGame {
         }
 
         //Sign_msg contains the string in the sign block, if block is not a sign, sign_msg is empty string
-        
-
         if self.player.get_breath() == 0 {
             game.set_message(Some(
-                Message::new(String::from("YOU DIED")).title("Adventurers".to_string()),
+                Message::new(String::from("how did u die in a 2d pixel game lmao")).title("Adventurers".to_string()),
             ));
             self.game_state = 1;
         }
@@ -417,16 +419,16 @@ fn get_block(game_map: &HashMap<(i32, i32), Block>, (x, y): (i32, i32)) -> &Bloc
     block
 }
 
-// fn get_background_color(game: &Game, x: i32, y: i32) -> GameColor {
-//     let colour = match game.get_screen_char(x, y) {
-//         Some(styled_char) => match styled_char.style {
-//             Some(style) => match style.background_color {
-//                 Some(colour) => colour,
-//                 None => todo!(),
-//             },
-//             None => todo!(),
-//         },
-//         None => todo!(),
-//     };
-//     colour
-// }
+fn get_background_color(game: &Game, x: i32, y: i32) -> GameColor {
+    let colour = match game.get_screen_char(x, y) {
+        Some(styled_char) => match styled_char.style {
+            Some(style) => match style.background_color {
+                Some(colour) => colour,
+                None => GameColor::Black,
+            },
+            None => GameColor::Black,
+        },
+        None => GameColor::Black,
+    };
+    colour
+}

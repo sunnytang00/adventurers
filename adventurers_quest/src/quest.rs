@@ -18,6 +18,8 @@ pub trait Questing {
 
     fn update_quests(&mut self, block: &Block);
 
+    fn reset_quest(&mut self);
+
 }
 
 impl Questing for Quest {
@@ -45,6 +47,12 @@ impl Questing for Quest {
         
         if self.tasks.len() == completed_tasks {
             self.status = QuestStatus::Complete;
+        }
+    }
+
+    fn reset_quest(&mut self) {
+        for task in self.tasks.iter_mut() {
+            task.reset_task();
         }
     }
 

@@ -38,7 +38,30 @@ fn main() -> Result<(), Box<dyn Error>> {
                 tasks: tasks,
             }
         }
-        "q2" => todo!(),
+        "q2" => {
+            let mut tasks: Vec<QuestTask> = Vec::new();
+            
+            tasks.push(QuestTask {
+                status: QuestStatus::Ongoing,
+                task: QuestAction::Collect,
+                object: Block::Object('x'),
+                no_of_times: 5,
+                x_more_times: 5,
+            });
+
+            tasks.push(QuestTask {
+                status: QuestStatus::Ongoing,
+                task: QuestAction::Collect,
+                object: Block::Object('y'),
+                no_of_times: 3,
+                x_more_times: 3,
+            });
+
+            Quest {
+                status: QuestStatus::Ongoing,
+                tasks: tasks,
+            }
+        },
         "q3" => todo!(),
         _ => Quest {
             status: QuestStatus::Complete,
