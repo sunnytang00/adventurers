@@ -10,15 +10,12 @@ pub struct Player {
 }
 
 pub trait Movement {
-
     fn move_dir(&mut self, direction: Direction);
 
     fn move_dir_rel(&mut self, direction: Direction);
-
 }
 
 pub trait Breath {
-
     fn decrease_breath(&mut self);
 
     fn get_breath(&self) -> i32;
@@ -27,7 +24,6 @@ pub trait Breath {
 }
 
 impl Movement for Player {
-
     fn move_dir(&mut self, direction: Direction) {
         match direction {
             Direction::Left => self.x = self.x - 1,
@@ -45,11 +41,9 @@ impl Movement for Player {
             Direction::Down => self.rel_y = self.rel_y - 1,
         };
     }
-    
 }
 
 impl Breath for Player {
-
     fn decrease_breath(&mut self) {
         self.breath = self.breath - 1;
     }

@@ -1,7 +1,6 @@
-
 use serde::Deserialize;
 use termgame::{GameColor, GameStyle, StyledCharacter};
-#[derive(Deserialize)]
+#[derive(PartialEq, Deserialize)]
 pub enum Block {
     Barrier,
     Water,
@@ -15,8 +14,14 @@ pub enum Block {
     Object(char),
 }
 
+// impl PartialEq for Block {
+//     fn eq(&self, other: &Self) -> bool {
+//         self == other;
+//     }
+// }
+
 pub trait SignText {
-    fn get_sign_text(&self) -> String; 
+    fn get_sign_text(&self) -> String;
 }
 
 impl SignText for Block {
@@ -29,23 +34,53 @@ impl SignText for Block {
         str.to_string()
     }
 }
-pub trait BlockColour{
+pub trait BlockColour {
     fn get_colour(&self) -> Option<StyledCharacter>;
 }
 
 impl BlockColour for Block {
     fn get_colour(&self) -> Option<StyledCharacter> {
         let ret = match self {
-            Block::Barrier => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::White)))),
-            Block::Water => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Blue)))),
-            Block::Grass => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Green)))),
-            Block::Sand => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Yellow)))),
-            Block::Rock => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Yellow)))),
-            Block::Cinderblock => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::LightRed)))),
-            Block::Flowerbush => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Magenta)))),
-            Block::Sign(_) => Some(StyledCharacter::new('💬').style(GameStyle::new().background_color(Some(GameColor::Black)))),
-            Block::Object(char) => Some(StyledCharacter::new(char.to_owned()).style(GameStyle::new().background_color(Some(GameColor::Black)))),
-            Block::Empty => Some(StyledCharacter::new(' ').style(GameStyle::new().background_color(Some(GameColor::Black)))),
+            Block::Barrier => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::White))),
+            ),
+            Block::Water => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::Blue))),
+            ),
+            Block::Grass => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::Green))),
+            ),
+            Block::Sand => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::Yellow))),
+            ),
+            Block::Rock => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::Yellow))),
+            ),
+            Block::Cinderblock => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::LightRed))),
+            ),
+            Block::Flowerbush => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::Magenta))),
+            ),
+            Block::Sign(_) => Some(
+                StyledCharacter::new('💬')
+                    .style(GameStyle::new().background_color(Some(GameColor::Black))),
+            ),
+            Block::Object(char) => Some(
+                StyledCharacter::new(char.to_owned())
+                    .style(GameStyle::new().background_color(Some(GameColor::Black))),
+            ),
+            Block::Empty => Some(
+                StyledCharacter::new(' ')
+                    .style(GameStyle::new().background_color(Some(GameColor::Black))),
+            ),
         };
         ret
     }
