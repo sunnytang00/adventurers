@@ -5,9 +5,10 @@ use termgame::{
     StyledCharacter, ViewportLocation,
 };
 
-use crate::utils::block::{Block, BlockColour, SignText};
-use crate::utils::direction::Direction;
-use crate::utils::player::{Breath, Movement, Player};
+use lib::block::{Block, BlockColour, SignText};
+use lib::direction::Direction;
+use lib::player::{Player, Breath, Movement};
+
 
 pub struct MyGame {
     pub player: Player,
@@ -61,6 +62,7 @@ impl Controller for MyGame {
             SimpleEvent::Just(KeyCode::Left) => {
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
 
+                //If map is missing fields, before we move, create a block in hashmap and termgame map
                 if game.get_screen_char(x, y).is_none() {
                     self.game_map.insert((x, y), Block::Empty);
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
@@ -89,23 +91,22 @@ impl Controller for MyGame {
 
                     //If player is going to move onto a sign block, save info about sign block
 
-                    let char = match game.get_screen_char(x, y) {
-                        Some(styled_c) => styled_c.c,
+                    match game.get_screen_char(x, y) {
+                        Some(styled_c) => {
+                            if styled_c.c == '💬' {
+                                let sign_txt = match self.game_map.get(&(x, y)) {
+                                    Some(x) => match x {
+                                        Block::Sign(_) => x.get_sign_text(),
+                                        _ => panic!(),
+                                    },
+                                    None => panic!(),
+                                };
+
+                                self.sign_msg = Some(sign_txt);
+                            }
+                        }
                         None => panic!(),
                     };
-
-                    if char == '💬' {
-                        let sign_txt = match self.game_map.get(&(x, y)) {
-                            Some(x) => match x {
-                                Block::Sign(_) => x.get_sign_text(),
-                                _ => panic!(),
-                            },
-                            None => panic!(),
-                        };
-                        
-                        self.sign_msg = Some(
-                            sign_txt);
-                    }
 
                     if i32::from(term_width / 2) + self.player.rel_x <= 2 {
                         move_viewport(game, Direction::Left);
@@ -151,24 +152,22 @@ impl Controller for MyGame {
                         );
                     }
 
-                    let char = match game.get_screen_char(x, y) {
-                        Some(styled_c) => styled_c.c,
-                        None => ' ',
-                    };
+                    match game.get_screen_char(x, y) {
+                        Some(styled_c) => {
+                            if styled_c.c == '💬' {
+                                let sign_txt = match self.game_map.get(&(x, y)) {
+                                    Some(x) => match x {
+                                        Block::Sign(_) => x.get_sign_text(),
+                                        _ => panic!(),
+                                    },
+                                    None => panic!(),
+                                };
 
-                    if char == '💬' {
-                        let sign_txt = match self.game_map.get(&(x, y)) {
-                            Some(x) => match x {
-                                Block::Sign(_) => x.get_sign_text(),
-                                _ => panic!(),
-                            },
-                            None => panic!(),
-                        };
-                        
-                        self.sign_msg = Some(
-                            sign_txt
-                        );
-                    }
+                                self.sign_msg = Some(sign_txt);
+                            }
+                        }
+                        None => panic!(),
+                    };
 
                     if i32::from(term_width / 2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Right);
@@ -213,24 +212,22 @@ impl Controller for MyGame {
                         );
                     }
 
-                    let char = match game.get_screen_char(x, y) {
-                        Some(styled_c) => styled_c.c,
-                        None => ' ',
-                    };
+                    match game.get_screen_char(x, y) {
+                        Some(styled_c) => {
+                            if styled_c.c == '💬' {
+                                let sign_txt = match self.game_map.get(&(x, y)) {
+                                    Some(x) => match x {
+                                        Block::Sign(_) => x.get_sign_text(),
+                                        _ => panic!(),
+                                    },
+                                    None => panic!(),
+                                };
 
-                    if char == '💬' {
-                        let sign_txt = match self.game_map.get(&(x, y)) {
-                            Some(x) => match x {
-                                Block::Sign(_) => x.get_sign_text(),
-                                _ => panic!(),
-                            },
-                            None => panic!(),
-                        };
-                        
-                        self.sign_msg = Some(
-                            sign_txt
-                        );
-                    }
+                                self.sign_msg = Some(sign_txt);
+                            }
+                        }
+                        None => panic!(),
+                    };
 
                     if i32::from(term_height / 2) - self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Up);
@@ -275,24 +272,22 @@ impl Controller for MyGame {
                         );
                     }
 
-                    let char = match game.get_screen_char(x, y) {
-                        Some(styled_c) => styled_c.c,
-                        None => ' ',
-                    };
+                    match game.get_screen_char(x, y) {
+                        Some(styled_c) => {
+                            if styled_c.c == '💬' {
+                                let sign_txt = match self.game_map.get(&(x, y)) {
+                                    Some(x) => match x {
+                                        Block::Sign(_) => x.get_sign_text(),
+                                        _ => panic!(),
+                                    },
+                                    None => panic!(),
+                                };
 
-                    if char == '💬' {
-                        let sign_txt = match self.game_map.get(&(x, y)) {
-                            Some(x) => match x {
-                                Block::Sign(_) => x.get_sign_text(),
-                                _ => panic!(),
-                            },
-                            None => panic!(),
-                        };
-                        
-                        self.sign_msg = Some(
-                            sign_txt
-                        );
-                    }
+                                self.sign_msg = Some(sign_txt);
+                            }
+                        }
+                        None => panic!(),
+                    };
 
                     if i32::from(term_height / 2) + self.player.rel_y <= 2 {
                         move_viewport(game, Direction::Down);
@@ -315,7 +310,7 @@ impl Controller for MyGame {
 
         //Sign_msg contains the string in the sign block, if block is not a sign, sign_msg is empty string
         match &self.sign_msg {
-            Some(message) =>  game.set_message(Some(
+            Some(message) => game.set_message(Some(
                 Message::new(message.to_string()).title("Adventurers".to_string()),
             )),
             None => game.set_message(None),

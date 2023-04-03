@@ -1,4 +1,5 @@
-use adventurers::utils::{block::Block, my_game, player::Player};
+use adventurers::utils::my_game;
+use lib::{block::Block, player::Player};
 use std::time::Duration;
 use std::{
     collections::HashMap,
@@ -6,6 +7,7 @@ use std::{
     fs::{self},
 };
 use termgame::{run_game, GameSettings, KeyCode, SimpleEvent};
+use adventurers_quest::utils::*;
 
 fn main() -> Result<(), Box<dyn Error>> {
     //Reading in args
@@ -14,15 +16,17 @@ fn main() -> Result<(), Box<dyn Error>> {
     //Map file
     let data = fs::read_to_string(&args[1]).expect("Failed to read map file.");
 
+    let quest_id = &args[2];
+
     //Deseralise
     let game_map: HashMap<(i32, i32), Block> =
         ron::from_str(data.as_str()).expect("Map file is in wrong format.");
 
     let player = Player {
-        x: 3,
-        y: 3,
-        rel_x: 3,
-        rel_y: 3,
+        x: 2,
+        y: 2,
+        rel_x: 2,
+        rel_y: 2,
         breath: 10,
         char: '♟',
     };

@@ -14,12 +14,6 @@ pub enum Block {
     Object(char),
 }
 
-// impl PartialEq for Block {
-//     fn eq(&self, other: &Self) -> bool {
-//         self == other;
-//     }
-// }
-
 pub trait SignText {
     fn get_sign_text(&self) -> String;
 }
