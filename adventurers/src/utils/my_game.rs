@@ -70,282 +70,44 @@ impl Controller for MyGame {
             }
 
             SimpleEvent::Just(KeyCode::Left) => {
-                //All of the left, right, down, up events follow this sort of template
-                //I know I can move all of those events into a function,
-                //Calculate x, y of the position player will move next to
-                let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
-
-                //If map is missing fields, before we move, create an entry in hashmap and termgame map
-                if game.get_screen_char(x, y).is_none() {
-                    self.game_map.insert((x, y), Block::Empty);
-                    game.set_screen_char(x, y, create_empty_block(GameColor::Black));
-                }
-
-                if get_block(&self.game_map, (x, y)) != &Block::Barrier {
-                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
-                    //Delete old character - replace the sign if we moved onto it
-                    if self.sign_msg.is_some() {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            Some(
-                                StyledCharacter::new('💬').style(
-                                    GameStyle::new().background_color(Some(GameColor::Black)),
-                                ),
-                            ),
-                        );
-                        self.sign_msg = None;
-                    } else {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            create_empty_block(bg_colour),
-                        );
-                    }
-
-                    //If player is going to move onto a sign block, save info about sign block
-
-                    match game.get_screen_char(x, y) {
-                        Some(styled_c) => {
-                            if styled_c.c == '💬' {
-                                let sign_txt = match self.game_map.get(&(x, y)) {
-                                    Some(x) => match x {
-                                        Block::Sign(_) => x.get_sign_text(),
-                                        _ => panic!(),
-                                    },
-                                    None => panic!(),
-                                };
-
-                                self.sign_msg = Some(sign_txt);
-                            }
-                        }
-                        None => panic!(),
-                    };
-
-                    if i32::from(term_width / 2) + self.player.rel_x <= 2 {
-                        move_viewport(game, Direction::Left);
-                    } else {
-                        self.player.move_dir_rel(Direction::Left);
-                    }
-                    self.player.move_dir(Direction::Left);
-
-                    add_player_block(game, self.player.x, self.player.y, self.player.char);
-
-                    if get_block(&self.game_map, (self.player.x, self.player.y)) == &Block::Water {
-                        self.player.decrease_breath();
-                    } else {
-                        self.player.reset_breath();
-                    }
-                }
-                match &self.sign_msg {
-                    Some(message) => game.set_message(Some(
-                        Message::new(message.to_string()).title("Adventurers".to_string()),
-                    )),
-                    None => game.set_message(None),
-                };
+                do_everything_related_to_move(
+                    game,
+                    self,
+                    Direction::Left,
+                    bg_colour,
+                    term_width,
+                    term_height,
+                );
             }
             SimpleEvent::Just(KeyCode::Right) => {
-                let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Right);
-
-                if game.get_screen_char(x, y).is_none() {
-                    self.game_map.insert((x, y), Block::Empty);
-                    game.set_screen_char(x, y, create_empty_block(GameColor::Black));
-                }
-
-                if get_block(&self.game_map, (x, y)) != &Block::Barrier {
-                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
-                    if self.sign_msg.is_some() {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            Some(
-                                StyledCharacter::new('💬').style(
-                                    GameStyle::new().background_color(Some(GameColor::Black)),
-                                ),
-                            ),
-                        );
-                        self.sign_msg = None;
-                    } else {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            create_empty_block(bg_colour),
-                        );
-                    }
-
-                    match game.get_screen_char(x, y) {
-                        Some(styled_c) => {
-                            if styled_c.c == '💬' {
-                                let sign_txt = match self.game_map.get(&(x, y)) {
-                                    Some(x) => match x {
-                                        Block::Sign(_) => x.get_sign_text(),
-                                        _ => panic!(),
-                                    },
-                                    None => panic!(),
-                                };
-
-                                self.sign_msg = Some(sign_txt);
-                            }
-                        }
-                        None => panic!(),
-                    };
-
-                    if i32::from(term_width / 2) - self.player.rel_y <= 2 {
-                        move_viewport(game, Direction::Right);
-                    } else {
-                        self.player.move_dir_rel(Direction::Right);
-                    }
-                    self.player.move_dir(Direction::Right);
-                    add_player_block(game, self.player.x, self.player.y, self.player.char);
-
-                    if get_block(&self.game_map, (self.player.x, self.player.y)) == &Block::Water {
-                        self.player.decrease_breath();
-                    } else {
-                        self.player.reset_breath();
-                    }
-                }
-                match &self.sign_msg {
-                    Some(message) => game.set_message(Some(
-                        Message::new(message.to_string()).title("Adventurers".to_string()),
-                    )),
-                    None => game.set_message(None),
-                };
+                do_everything_related_to_move(
+                    game,
+                    self,
+                    Direction::Right,
+                    bg_colour,
+                    term_width,
+                    term_height,
+                );
             }
             SimpleEvent::Just(KeyCode::Up) => {
-                let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Up);
-
-                if game.get_screen_char(x, y).is_none() {
-                    self.game_map.insert((x, y), Block::Empty);
-                    game.set_screen_char(x, y, create_empty_block(GameColor::Black));
-                }
-
-                if get_block(&self.game_map, (x, y)) != &Block::Barrier {
-                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
-                    if self.sign_msg.is_some() {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            Some(
-                                StyledCharacter::new('💬').style(
-                                    GameStyle::new().background_color(Some(GameColor::Black)),
-                                ),
-                            ),
-                        );
-                        self.sign_msg = None;
-                    } else {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            create_empty_block(bg_colour),
-                        );
-                    }
-
-                    match game.get_screen_char(x, y) {
-                        Some(styled_c) => {
-                            if styled_c.c == '💬' {
-                                let sign_txt = match self.game_map.get(&(x, y)) {
-                                    Some(x) => match x {
-                                        Block::Sign(_) => x.get_sign_text(),
-                                        _ => panic!(),
-                                    },
-                                    None => panic!(),
-                                };
-
-                                self.sign_msg = Some(sign_txt);
-                            }
-                        }
-                        None => panic!(),
-                    };
-
-                    if i32::from(term_height / 2) - self.player.rel_y <= 2 {
-                        move_viewport(game, Direction::Up);
-                    } else {
-                        self.player.move_dir_rel(Direction::Up);
-                    }
-                    self.player.move_dir(Direction::Up);
-                    add_player_block(game, self.player.x, self.player.y, self.player.char);
-
-                    if get_block(&self.game_map, (self.player.x, self.player.y)) == &Block::Water {
-                        self.player.decrease_breath();
-                    } else {
-                        self.player.reset_breath();
-                    }
-                }
-                match &self.sign_msg {
-                    Some(message) => game.set_message(Some(
-                        Message::new(message.to_string()).title("Adventurers".to_string()),
-                    )),
-                    None => game.set_message(None),
-                };
+                do_everything_related_to_move(
+                    game,
+                    self,
+                    Direction::Up,
+                    bg_colour,
+                    term_width,
+                    term_height,
+                );
             }
             SimpleEvent::Just(KeyCode::Down) => {
-                let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Down);
-
-                if game.get_screen_char(x, y).is_none() {
-                    self.game_map.insert((x, y), Block::Empty);
-                    game.set_screen_char(x, y, create_empty_block(GameColor::Black));
-                }
-
-                if get_block(&self.game_map, (x, y)) != &Block::Barrier {
-                    self.quest.update_quests(get_block(&self.game_map, (x, y)));
-                    if self.sign_msg.is_some() {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            Some(
-                                StyledCharacter::new('💬').style(
-                                    GameStyle::new().background_color(Some(GameColor::Black)),
-                                ),
-                            ),
-                        );
-                        self.sign_msg = None;
-                    } else {
-                        game.set_screen_char(
-                            self.player.x,
-                            self.player.y,
-                            create_empty_block(bg_colour),
-                        );
-                    }
-
-                    match game.get_screen_char(x, y) {
-                        Some(styled_c) => {
-                            if styled_c.c == '💬' {
-                                let sign_txt = match self.game_map.get(&(x, y)) {
-                                    Some(x) => match x {
-                                        Block::Sign(_) => x.get_sign_text(),
-                                        _ => panic!(),
-                                    },
-                                    None => panic!(),
-                                };
-
-                                self.sign_msg = Some(sign_txt);
-                            }
-                        }
-                        None => panic!(),
-                    };
-
-                    if i32::from(term_height / 2) + self.player.rel_y <= 2 {
-                        move_viewport(game, Direction::Down);
-                    } else {
-                        self.player.move_dir_rel(Direction::Down);
-                    }
-
-                    self.player.move_dir(Direction::Down);
-                    add_player_block(game, self.player.x, self.player.y, self.player.char);
-
-                    if get_block(&self.game_map, (self.player.x, self.player.y)) == &Block::Water {
-                        self.player.decrease_breath();
-                    } else {
-                        self.player.reset_breath();
-                    }
-                }
-
-                match &self.sign_msg {
-                    Some(message) => game.set_message(Some(
-                        Message::new(message.to_string()).title("Adventurers".to_string()),
-                    )),
-                    None => game.set_message(None),
-                };
+                do_everything_related_to_move(
+                    game,
+                    self,
+                    Direction::Down,
+                    bg_colour,
+                    term_width,
+                    term_height,
+                );
             }
             _ => {}
         }
@@ -434,7 +196,15 @@ fn get_background_color(game: &Game, x: i32, y: i32) -> GameColor {
     colour
 }
 
-fn do_everything_related_to_move_LR (game: &mut Game, mygame: &mut MyGame, direction: Direction, bg_colour: GameColor, term_width: u16) {
+fn do_everything_related_to_move(
+    game: &mut Game,
+    mygame: &mut MyGame,
+    direction: Direction,
+    bg_colour: GameColor,
+    term_width: u16,
+    term_height: u16,
+) {
+    //Get x, y of block we are trying to move to
     let (x, y) = get_next_position(mygame.player.x, mygame.player.y, direction);
 
     //If map is missing fields, before we move, create an entry in hashmap and termgame map
@@ -443,17 +213,19 @@ fn do_everything_related_to_move_LR (game: &mut Game, mygame: &mut MyGame, direc
         game.set_screen_char(x, y, create_empty_block(GameColor::Black));
     }
 
+    //Only allow moving if block we are moving to is not barrier
     if get_block(&mygame.game_map, (x, y)) != &Block::Barrier {
-        mygame.quest.update_quests(get_block(&mygame.game_map, (x, y)));
+        mygame
+            .quest
+            .update_quests(get_block(&mygame.game_map, (x, y)));
         //Delete old character - replace the sign if we moved onto it
         if mygame.sign_msg.is_some() {
             game.set_screen_char(
                 mygame.player.x,
                 mygame.player.y,
                 Some(
-                    StyledCharacter::new('💬').style(
-                        GameStyle::new().background_color(Some(GameColor::Black)),
-                    ),
+                    StyledCharacter::new('💬')
+                        .style(GameStyle::new().background_color(Some(GameColor::Black))),
                 ),
             );
             mygame.sign_msg = None;
@@ -484,13 +256,40 @@ fn do_everything_related_to_move_LR (game: &mut Game, mygame: &mut MyGame, direc
             None => panic!(),
         };
 
-        if i32::from(term_width / 2) + mygame.player.rel_x <= 2 {
-            move_viewport(game, Direction::Left);
-        } else {
-            mygame.player.move_dir_rel(Direction::Left);
-        }
-        mygame.player.move_dir(Direction::Left);
+        //Moving viewport and updating relative player coords if needed
+        match direction {
+            Direction::Left => {
+                if i32::from(term_width / 2) + mygame.player.rel_x <= 2 {
+                    move_viewport(game, direction);
+                } else {
+                    mygame.player.move_dir_rel(direction);
+                }
+            }
+            Direction::Right => {
+                if i32::from(term_width / 2) - mygame.player.rel_y <= 2 {
+                    move_viewport(game, Direction::Right);
+                } else {
+                    mygame.player.move_dir_rel(Direction::Right);
+                }
+            }
+            Direction::Up => {
+                if i32::from(term_height / 2) - mygame.player.rel_y <= 2 {
+                    move_viewport(game, Direction::Up);
+                } else {
+                    mygame.player.move_dir_rel(Direction::Up);
+                }
+            }
+            Direction::Down => {
+                if i32::from(term_height / 2) + mygame.player.rel_y <= 2 {
+                    move_viewport(game, Direction::Down);
+                } else {
+                    mygame.player.move_dir_rel(Direction::Down);
+                }
+            }
+        };
+        mygame.player.move_dir(direction);
 
+        //Create new player at new position
         add_player_block(game, mygame.player.x, mygame.player.y, mygame.player.char);
 
         if get_block(&mygame.game_map, (mygame.player.x, mygame.player.y)) == &Block::Water {

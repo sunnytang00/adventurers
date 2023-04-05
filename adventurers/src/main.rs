@@ -1,5 +1,5 @@
 use adventurers::utils::my_game;
-use adventurers_quest::quest::{Condition, create_quest};
+use adventurers_quest::quest::{create_quest, Condition};
 use adventurers_quest::quest_action::QuestAction;
 use adventurers_quest::quest_task::create_task;
 use lib::{block::Block, player::Player};
@@ -30,13 +30,24 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
         "q2" => {
             let mut quest = create_quest(Some(Condition::InOrder));
-            create_task(&mut quest, QuestAction::Collect, Block::Object('x'), 5, def_time);
-            create_task(&mut quest, QuestAction::Collect, Block::Object('y'), 3, def_time);
-            create_task(&mut quest, QuestAction::Walk, Block::Water, 3, def_time);
+            create_task(
+                &mut quest,
+                QuestAction::Collect,
+                Block::Object('x'),
+                5,
+                def_time,
+            );
+            create_task(
+                &mut quest,
+                QuestAction::Collect,
+                Block::Object('y'),
+                3,
+                def_time,
+            );
             quest
-        },
-        "q3" => todo!(),
-        _ => todo!(),
+        }
+        "q3" => create_quest(None),
+        _ => todo!(), //Can implement future quests
     };
 
     //Deseralise
@@ -51,6 +62,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         breath: 10,
         char: '♟',
     };
+    
+    //Game state 0 represents OK, game state 1 represents that game will end on next move
     let mut controller = my_game::MyGame {
         player,
         game_map,
@@ -71,4 +84,3 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
-
