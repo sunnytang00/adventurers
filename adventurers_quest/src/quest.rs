@@ -57,10 +57,8 @@ impl Questing for Quest {
         if self.tasks.len() == completed_tasks {
             match self.condition {
                 Some(Condition::InOrder) => {
-                    //eprintln!("{}", self.tasks.len());
                     let mut res = Vec::new();
                     res.extend(self.tasks.iter().zip(self.tasks.iter().skip(1)).filter(|(&ref a, &ref b)| a.completion_time < b.completion_time).map(|(_, b)| b));
-                    eprint!("{}", res.len());
                     if res.len() == self.tasks.len() - 1 {
                         
                         self.status = QuestStatus::Complete;
