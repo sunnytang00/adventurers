@@ -1,10 +1,9 @@
 use adventurers::utils::my_game;
-use adventurers_quest::quest::Quest;
+use adventurers_quest::quest::{Condition, create_quest};
 use adventurers_quest::quest_action::QuestAction;
-use adventurers_quest::quest_task::QuestTask;
-use adventurers_quest::utils::QuestStatus;
+use adventurers_quest::quest_task::create_task;
 use lib::{block::Block, player::Player};
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use std::{
     collections::HashMap,
     error::Error,
@@ -21,52 +20,23 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     let quest_id = &args[2];
 
+    let def_time = SystemTime::now();
+
     let quest = match quest_id.as_str() {
         "q1" => {
-            let mut tasks: Vec<QuestTask> = Vec::new();
-
-            tasks.push(QuestTask {
-                status: QuestStatus::Ongoing,
-                task: QuestAction::Walk,
-                object: Block::Sand,
-                no_of_times: 5,
-                x_more_times: 5,
-            });
-
-            Quest {
-                status: QuestStatus::Ongoing,
-                tasks: tasks,
-            }
+            let mut quest = create_quest(None);
+            create_task(&mut quest, QuestAction::Walk, Block::Sand, 5, def_time);
+            quest
         }
         "q2" => {
-            let mut tasks: Vec<QuestTask> = Vec::new();
-            
-            tasks.push(QuestTask {
-                status: QuestStatus::Ongoing,
-                task: QuestAction::Collect,
-                object: Block::Object('x'),
-                no_of_times: 5,
-                x_more_times: 5,
-            });
-
-            tasks.push(QuestTask {
-                status: QuestStatus::Ongoing,
-                task: QuestAction::Collect,
-                object: Block::Object('y'),
-                no_of_times: 3,
-                x_more_times: 3,
-            });
-
-            Quest {
-                status: QuestStatus::Ongoing,
-                tasks: tasks,
-            }
+            let mut quest = create_quest(Some(Condition::InOrder));
+            create_task(&mut quest, QuestAction::Collect, Block::Object('x'), 5, def_time);
+            create_task(&mut quest, QuestAction::Collect, Block::Object('y'), 3, def_time);
+            create_task(&mut quest, QuestAction::Walk, Block::Water, 3, def_time);
+            quest
         },
         "q3" => todo!(),
-        _ => Quest {
-            status: QuestStatus::Complete,
-            tasks: Vec::new(),
-        },
+        _ => todo!(),
     };
 
     //Deseralise
@@ -101,3 +71,4 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     Ok(())
 }
+

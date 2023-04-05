@@ -8,7 +8,7 @@ pub enum QuestAction {
 impl fmt::Display for QuestAction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let ret = match self {
-            QuestAction::Walk => write!(f, "Walk"),
+            QuestAction::Walk => write!(f, "Walk on"),
             QuestAction::Collect => write!(f, "Collect"),
         };
         ret

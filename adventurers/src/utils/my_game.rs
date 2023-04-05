@@ -26,7 +26,7 @@ impl Controller for MyGame {
             game.set_screen_char(key.0, key.1, ch);
         }
 
-        //Safe to assume player will always start on a block, so we can call unwrap without any fears
+        //Initalise player char
         let bg_colour = get_background_color(game, self.player.x, self.player.y);
         game.set_screen_char(
             self.player.x,
@@ -38,6 +38,7 @@ impl Controller for MyGame {
         );
 
         //Work out relative position of player from middle of terminal, treating middle of terminal as origin
+        //Relative position is a field in the player struct to help with panning the screen
         let (width, (height, _)) = game.screen_size();
         let (term_width, term_height) = (width - 2, height - 2);
         let term_middle = (term_width / 2, term_height / 2);
@@ -51,10 +52,7 @@ impl Controller for MyGame {
             game.end_game();
         }
         //Get background colour of current player spot before moving
-        
-        let ch = game.get_screen_char(self.player.x, self.player.y).unwrap();
-        //Need to change below no unwraps
-        let bg_colour = ch.style.unwrap().background_color.unwrap();
+        let bg_colour = get_background_color(game, self.player.x, self.player.y);
 
         let (width, (height, _)) = game.screen_size();
         let (term_width, term_height) = (width - 2, height - 2);
@@ -62,7 +60,7 @@ impl Controller for MyGame {
         match event.into() {
             SimpleEvent::Just(KeyCode::Char('q')) => {
                 game.set_message(Some(
-                    Message::new(self.quest.to_string()).title("Adventurers".to_string()),
+                    Message::new(self.quest.to_string()).title("Quest Status".to_string()),
                 ));
             }
 
@@ -72,9 +70,12 @@ impl Controller for MyGame {
             }
 
             SimpleEvent::Just(KeyCode::Left) => {
+                //All of the left, right, down, up events follow this sort of template
+                //I know I can move all of those events into a function,
+                //Calculate x, y of the position player will move next to
                 let (x, y) = get_next_position(self.player.x, self.player.y, Direction::Left);
 
-                //If map is missing fields, before we move, create a block in hashmap and termgame map
+                //If map is missing fields, before we move, create an entry in hashmap and termgame map
                 if game.get_screen_char(x, y).is_none() {
                     self.game_map.insert((x, y), Block::Empty);
                     game.set_screen_char(x, y, create_empty_block(GameColor::Black));
@@ -135,7 +136,6 @@ impl Controller for MyGame {
                     } else {
                         self.player.reset_breath();
                     }
-                    
                 }
                 match &self.sign_msg {
                     Some(message) => game.set_message(Some(
@@ -353,7 +353,8 @@ impl Controller for MyGame {
         //Sign_msg contains the string in the sign block, if block is not a sign, sign_msg is empty string
         if self.player.get_breath() == 0 {
             game.set_message(Some(
-                Message::new(String::from("how did u die in a 2d pixel game lmao")).title("Adventurers".to_string()),
+                Message::new(String::from("how did u die in a 2d pixel game lmao"))
+                    .title("Adventurers".to_string()),
             ));
             self.game_state = 1;
         }
@@ -431,4 +432,77 @@ fn get_background_color(game: &Game, x: i32, y: i32) -> GameColor {
         None => GameColor::Black,
     };
     colour
+}
+
+fn do_everything_related_to_move_LR (game: &mut Game, mygame: &mut MyGame, direction: Direction, bg_colour: GameColor, term_width: u16) {
+    let (x, y) = get_next_position(mygame.player.x, mygame.player.y, direction);
+
+    //If map is missing fields, before we move, create an entry in hashmap and termgame map
+    if game.get_screen_char(x, y).is_none() {
+        mygame.game_map.insert((x, y), Block::Empty);
+        game.set_screen_char(x, y, create_empty_block(GameColor::Black));
+    }
+
+    if get_block(&mygame.game_map, (x, y)) != &Block::Barrier {
+        mygame.quest.update_quests(get_block(&mygame.game_map, (x, y)));
+        //Delete old character - replace the sign if we moved onto it
+        if mygame.sign_msg.is_some() {
+            game.set_screen_char(
+                mygame.player.x,
+                mygame.player.y,
+                Some(
+                    StyledCharacter::new('💬').style(
+                        GameStyle::new().background_color(Some(GameColor::Black)),
+                    ),
+                ),
+            );
+            mygame.sign_msg = None;
+        } else {
+            game.set_screen_char(
+                mygame.player.x,
+                mygame.player.y,
+                create_empty_block(bg_colour),
+            );
+        }
+
+        //If player is going to move onto a sign block, save info about sign block
+
+        match game.get_screen_char(x, y) {
+            Some(styled_c) => {
+                if styled_c.c == '💬' {
+                    let sign_txt = match mygame.game_map.get(&(x, y)) {
+                        Some(x) => match x {
+                            Block::Sign(_) => x.get_sign_text(),
+                            _ => panic!(),
+                        },
+                        None => panic!(),
+                    };
+
+                    mygame.sign_msg = Some(sign_txt);
+                }
+            }
+            None => panic!(),
+        };
+
+        if i32::from(term_width / 2) + mygame.player.rel_x <= 2 {
+            move_viewport(game, Direction::Left);
+        } else {
+            mygame.player.move_dir_rel(Direction::Left);
+        }
+        mygame.player.move_dir(Direction::Left);
+
+        add_player_block(game, mygame.player.x, mygame.player.y, mygame.player.char);
+
+        if get_block(&mygame.game_map, (mygame.player.x, mygame.player.y)) == &Block::Water {
+            mygame.player.decrease_breath();
+        } else {
+            mygame.player.reset_breath();
+        }
+    }
+    match &mygame.sign_msg {
+        Some(message) => game.set_message(Some(
+            Message::new(message.to_string()).title("Adventurers".to_string()),
+        )),
+        None => game.set_message(None),
+    };
 }

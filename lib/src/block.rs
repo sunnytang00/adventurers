@@ -97,7 +97,7 @@ impl fmt::Display for Block {
             Block::Flowerbush => write!(f, "block of flowerbush"),
             Block::Empty => write!(f, "??"),
             Block::Sign(_) => write!(f, "sign"),
-            Block::Object(_) => write!(f, "object"),
+            Block::Object(char) => write!(f, "'{}' object", char),
         };
         ret
     }

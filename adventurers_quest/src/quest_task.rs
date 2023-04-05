@@ -1,15 +1,17 @@
+
 use std::fmt;
 
-use crate::utils::QuestStatus;
+use crate::{utils::QuestStatus, quest::Quest};
 use crate::quest_action::QuestAction;
 use lib::block::Block;
-
+use std::time::{SystemTime};
 pub struct QuestTask {
     pub status: QuestStatus,
     pub task: QuestAction,
     pub object: Block,
     pub no_of_times: i32,
     pub x_more_times: i32,
+    pub completion_time: (SystemTime, bool),
 }
 
 pub trait ModifyTask {
@@ -43,31 +45,21 @@ impl ModifyTask for QuestTask {
 
         if self.x_more_times == 0 {
             self.status = QuestStatus::Complete;
+            if self.completion_time.1 == false {
+                self.completion_time = (SystemTime::now(), true);
+            }
         }
     }
-
-    // fn update_quest(&mut self, block: Block) -> QuestTask {
-    //     // match block {
-    //     //     Block::Barrier => todo!(),
-    //     //     Block::Water => {
-    //     //         if self.task == QuestAction::Walk && self.object == Block::Water {
-    //     //             QuestTask { status: QuestStatus::Ongoing, task: self.task, object: self.object, no_of_times: self.no_of_times, x_more_times: self.x_more_times - 1 };
-    //     //     },
-    //     //     Block::Grass => todo!(),
-    //     //     Block::Sand => todo!(),
-    //     //     Block::Rock => todo!(),
-    //     //     Block::Cinderblock => todo!(),
-    //     //     Block::Flowerbush => todo!(),
-    //     //     Block::Empty => todo!(),
-    //     //     Block::Sign(_) => todo!(),
-    //     //     Block::Object(_) => todo!(),
-    //     // };
-    // }
 
 }
 
 impl fmt::Display for QuestTask {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{} on a {}", self.task, self.object)
+        write!(f, "{} a {}", self.task, self.object)
     }
+}
+
+pub fn create_task(quest: &mut Quest, action: QuestAction, block: Block, num_of_times: i32, time: SystemTime) {
+    let task = QuestTask { status: QuestStatus::Ongoing, task: action, object: block, no_of_times: num_of_times, x_more_times: num_of_times, completion_time: (time, false) };
+    quest.tasks.push(task);
 }
